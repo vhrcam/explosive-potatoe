@@ -9,6 +9,10 @@ import SwiftUI
 
 @main
 struct Explosive_PotatoeApp: App {
+    init() {
+        Theme.registerFonts()
+    }
+
     var body: some Scene {
         WindowGroup {
             ContentView()

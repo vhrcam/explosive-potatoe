@@ -8,14 +8,21 @@
 import SwiftUI
 
 struct ContentView: View {
+    @State private var game = GameModel()
+
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        Group {
+            switch game.phase {
+            case .home: HomeView(game: game)
+            case .players: PlayersView(game: game)
+            case .addPlayers: AddPlayersView(game: game)
+            case .punishment: PunishmentView(game: game)
+            case .playing: GameView(game: game)
+            case .exploded: ExplosionView(game: game)
+            case .results: ResultsView(game: game)
+            }
         }
-        .padding()
+        .animation(.easeInOut(duration: 0.25), value: game.phase)
     }
 }
 

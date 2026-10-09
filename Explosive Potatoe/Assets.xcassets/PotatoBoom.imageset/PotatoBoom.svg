@@ -1,0 +1,16 @@
+<svg width="230" height="301.875" viewBox="0 0 230 301.875" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="art">
+<circle cx="130.3" cy="16.8" r="9.6" fill="#DAD6CF"/>
+<circle cx="141.3" cy="37.4" r="13.4" fill="#D0CAC2"/>
+<circle cx="127.9" cy="57.5" r="10.5" fill="#C4BCB2"/>
+<path d="M115 86.25C113 78 116 70 122 66" stroke-width="6.70833" stroke-linecap="round" stroke="#3B2A1A"/>
+<path d="M115 95.8333C162.917 91.0417 196.458 124.583 201.25 172.5C206.042 220.417 186.875 268.333 143.75 282.708C105.417 295.167 57.5 282.708 38.3333 244.375C21.0833 208.917 28.75 153.333 52.7083 124.583C69 105.417 91.0417 97.75 115 95.8333Z" fill="#9B6338" stroke-width="5.75" stroke="#3B2A1A"/>
+<ellipse cx="143.7" cy="134.1" rx="28.7" ry="14.4" fill="#7A4A26" fill-opacity="0.75"/>
+<ellipse cx="57.5" cy="172.4" rx="8.6" ry="19.2" fill="#7A4A26" fill-opacity="0.75"/>
+<ellipse cx="69.5" cy="256.3" rx="21.6" ry="10.5" fill="#7A4A26" fill-opacity="0.75"/>
+<path d="M122.667 84.3333H107.333C105.216 84.3333 103.5 86.0496 103.5 88.1667V95.8333C103.5 97.9504 105.216 99.6667 107.333 99.6667H122.667C124.784 99.6667 126.5 97.9504 126.5 95.8333V88.1667C126.5 86.0496 124.784 84.3333 122.667 84.3333Z" fill="#9A9AA0" stroke-width="3.83333" stroke="#6B4423"/>
+<path d="M87.2 178.2L104.4 195.4M104.4 178.2L87.2 195.4" stroke="#3B2A1A" stroke-width="5" stroke-linecap="round"/>
+<path d="M130.4 178.2L147.6 195.4M147.6 178.2L130.4 195.4" stroke="#3B2A1A" stroke-width="5" stroke-linecap="round"/>
+<ellipse cx="117.4" cy="226.1" rx="10.5" ry="13.4" fill="#3B2A1A"/>
+</g>
+</svg>
