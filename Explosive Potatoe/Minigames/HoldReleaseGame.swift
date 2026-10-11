@@ -49,11 +49,11 @@ struct HoldReleaseGame: View {
     @ViewBuilder
     private var header: some View {
         if isComplete {
-            MinigameHeader(label: MinigameFX.completeLabel, labelColor: Theme.green, title: "Nailed it!")
+            MinigameTitle(label: MinigameFX.completeLabel, labelColor: Theme.green, title: "Nailed it!")
         } else if let missText {
-            MinigameHeader(label: "Missed · new target", labelColor: Theme.fire, title: missText, subtitle: "Hold the button, let go in the green.")
+            MinigameTitle(label: "Missed · new target", labelColor: Theme.fire, title: missText, subtitle: "Hold the button, let go in the green.")
         } else {
-            MinigameHeader(title: "Hold & Release", subtitle: "Hold the button, let go in the green.")
+            MinigameTitle(title: "Hold & Release", subtitle: "Hold the button, let go in the green.")
         }
     }
 
@@ -73,19 +73,20 @@ struct HoldReleaseGame: View {
             Circle()
                 .trim(from: targetStart, to: targetStart + targetSize)
                 .stroke(Theme.green.opacity(inZone ? 1 : 0.8), lineWidth: ringWidth)
-                .shadow(color: Theme.green.opacity(inZone ? 1 : 0.6), radius: inZone ? 20 : 10)
+                .scaleEffect(inZone ? 1.04 : 1)
             Circle()
                 .trim(from: 0, to: fill)
                 .stroke(
                     AngularGradient(colors: [Theme.yellow, Theme.orange, Theme.fire], center: .center, startAngle: .zero, endAngle: .degrees(360)),
                     style: StrokeStyle(lineWidth: ringWidth * 0.55, lineCap: .round)
                 )
-                .shadow(color: Theme.fire.opacity(0.7), radius: 10)
+                .shadow(color: Theme.shadow, radius: 2, y: 1)
             if fill > 0 {
                 Circle()
-                    .fill(.white)
+                    .fill(Theme.card)
+                    .overlay(Circle().strokeBorder(Theme.ink.opacity(0.5), lineWidth: 1.5))
                     .frame(width: ringWidth * 0.7, height: ringWidth * 0.7)
-                    .shadow(color: Theme.yellow, radius: 10)
+                    .shadow(color: Theme.shadow, radius: 3, y: 2)
                     .offset(x: cos(angle) * radius, y: sin(angle) * radius)
             }
         }
@@ -110,7 +111,7 @@ struct HoldReleaseGame: View {
             .background(Circle().fill(Color(hex: 0x9E2A14)).offset(y: isHolding ? 2 : 8))
             .offset(y: isHolding ? 6 : 0)
             .scaleEffect(isHolding ? 0.94 : 1)
-            .shadow(color: Theme.fire.opacity(isHolding ? 0.9 : 0.5), radius: isHolding ? 30 : 18, y: 8)
+            .shadow(color: Theme.shadow.opacity(1.4), radius: isHolding ? 3 : 8, y: isHolding ? 2 : 6)
             .animation(.spring(response: 0.22, dampingFraction: 0.6), value: isHolding)
             .gesture(
                 DragGesture(minimumDistance: 0)

@@ -69,11 +69,11 @@ struct CutWireGame: View {
     @ViewBuilder
     private var header: some View {
         if isComplete {
-            MinigameHeader(label: MinigameFX.completeLabel, labelColor: Theme.green, title: "Bomb defused!")
+            MinigameTitle(label: MinigameFX.completeLabel, labelColor: Theme.green, title: "Bomb defused!")
         } else if wrongWire != nil {
-            MinigameHeader(label: "Wrong wire · streak reset", labelColor: Theme.fire, title: "Zap! Wrong one", subtitle: "Swipe through the right wire, \(goal) in a row.")
+            MinigameTitle(label: "Wrong wire · streak reset", labelColor: Theme.fire, title: "Zap! Wrong one", subtitle: "Swipe through the right wire, \(goal) in a row.")
         } else {
-            MinigameHeader(title: "Cut the Wire", subtitle: "Swipe through the right wire, \(goal) in a row.")
+            MinigameTitle(title: "Cut the Wire", subtitle: "Swipe through the right wire, \(goal) in a row.")
         }
     }
 
@@ -82,7 +82,7 @@ struct CutWireGame: View {
             Image(systemName: "scissors")
                 .font(.system(size: 26, weight: .heavy))
                 .foregroundStyle(target.color)
-                .shadow(color: target.color.opacity(0.7), radius: 10)
+                .shadow(color: Theme.shadow, radius: 1, y: 1)
             VStack(alignment: .leading, spacing: 0) {
                 Text("CUT THE")
                     .font(.fredoka(13, .bold))
@@ -91,7 +91,7 @@ struct CutWireGame: View {
                 Text("\(target.name) WIRE")
                     .font(.lilita(34))
                     .foregroundStyle(target.color)
-                    .shadow(color: target.color.opacity(0.7), radius: 12)
+                    .shadow(color: Theme.ink.opacity(0.25), radius: 0, y: 2)
                     .lineLimit(1)
                     .minimumScaleFactor(0.6)
             }
@@ -107,7 +107,7 @@ struct CutWireGame: View {
     private var stage: some View {
         let shape = RoundedRectangle(cornerRadius: 26, style: .continuous)
         return ZStack(alignment: .topLeading) {
-            shape.fill(.black.opacity(0.35))
+            shape.fill(Color(hex: 0x3A332C))
 
             Canvas { context, size in
                 drawFrame(&context, size: size)
@@ -148,7 +148,6 @@ struct CutWireGame: View {
             }
 
             shape.strokeBorder(wrongWire == nil ? Theme.stroke : Theme.fire, lineWidth: wrongWire == nil ? 1 : 3)
-                .shadow(color: Theme.fire.opacity(wrongWire == nil ? 0 : 0.8), radius: 16)
                 .allowsHitTesting(false)
         }
         .frame(width: panel.width, height: panel.height)

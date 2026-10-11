@@ -6,6 +6,8 @@ struct PunishmentView: View {
     @State private var appeared = false
     @State private var rolls = 0
 
+    private let pickTilts: [Double] = [-2, 1.5, -1, 2, -1.5, 1]
+
     private var isEmpty: Bool {
         game.punishment.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
@@ -30,19 +32,24 @@ struct PunishmentView: View {
             if let setter {
                 VStack(spacing: 4) {
                     if !focused {
-                        Avatar(name: setter.name, colorIndex: setter.colorIndex, size: 58)
+                        Avatar(name: setter.name, colorIndex: setter.colorIndex, size: 54)
                             .transition(.scale.combined(with: .opacity))
                     }
                     Text(setter.name)
                         .bigName(Theme.avatarColors[setter.colorIndex % Theme.avatarColors.count], size: 50)
-                    Text("set the punishment")
+                    Text("write the punishment")
                         .font(.fredoka(18, .semibold))
                         .foregroundStyle(Theme.textDim)
                 }
                 .staggerIn(appeared, 1)
             }
 
-            editor
+            noteCard
+                .overlay(alignment: .topTrailing) {
+                    PotatoSlot(width: 54)
+                        .offset(x: 12, y: -52)
+                }
+                .padding(.top, 6)
                 .staggerIn(appeared, 2)
 
             if !focused {
@@ -55,7 +62,8 @@ struct PunishmentView: View {
 
             if !focused {
                 HStack(spacing: 10) {
-                    PotatoImage(mood: .nervous, width: 40)
+                    Image(systemName: "flame.fill")
+                        .foregroundStyle(Theme.fire)
                     Text("Fuse length is a secret…")
                         .font(.fredoka(15))
                         .foregroundStyle(Theme.textDim)
@@ -86,21 +94,27 @@ struct PunishmentView: View {
     private var roundPill: some View {
         HStack(spacing: 8) {
             Image(systemName: game.gameType.symbol)
+                .foregroundStyle(Theme.fire)
             Text("\(game.gameType.title.uppercased()) · ROUND \(game.round)/\(game.gameType.rounds)")
         }
         .font(.fredoka(13, .bold))
         .tracking(1.2)
-        .foregroundStyle(Theme.yellow)
+        .foregroundStyle(Theme.text)
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
-        .background(Capsule().fill(Theme.surface))
+        .background(Capsule().fill(Theme.surfaceStrong))
         .overlay(Capsule().strokeBorder(Theme.stroke, lineWidth: 1))
+        .shadow(color: Theme.shadow, radius: 3, y: 2)
     }
 
-    private var editor: some View {
-        VStack(alignment: .leading, spacing: 12) {
+    private var noteCard: some View {
+        VStack(alignment: .leading, spacing: 6) {
             HStack {
-                SectionLabel(text: "Loser has to…", color: Theme.yellow, alignment: .leading)
+                Text("LOSER HAS TO…")
+                    .font(.fredoka(13, .bold))
+                    .tracking(1.4)
+                    .foregroundStyle(Theme.fire)
+                Spacer()
                 Button {
                     rolls += 1
                     SFX.play(.flip)
@@ -109,19 +123,20 @@ struct PunishmentView: View {
                 } label: {
                     Image(systemName: "dice.fill")
                         .font(.system(size: 17, weight: .bold))
-                        .foregroundStyle(Theme.text)
+                        .foregroundStyle(Theme.ink)
                         .frame(width: 38, height: 38)
-                        .background(Circle().fill(Theme.surfaceStrong))
+                        .background(Circle().fill(Theme.card))
                         .overlay(Circle().strokeBorder(Theme.stroke, lineWidth: 1))
+                        .shadow(color: Theme.shadow, radius: 3, y: 2)
                         .rotationEffect(.degrees(Double(rolls) * 360))
                         .animation(.spring(duration: 0.6, bounce: 0.35), value: rolls)
                 }
                 .buttonStyle(.pressable)
             }
-            TextField("Punishment", text: $game.punishment, prompt: Text("Type one, or roll the dice").foregroundStyle(Theme.textFaint), axis: .vertical)
-                .font(.fredoka(22, .semibold))
-                .foregroundStyle(Theme.text)
-                .tint(Theme.orange)
+            TextField("Punishment", text: $game.punishment, prompt: Text("Write it here, or roll the dice").foregroundStyle(Theme.textFaint), axis: .vertical)
+                .font(.hand(32))
+                .foregroundStyle(Theme.ink)
+                .tint(Theme.fire)
                 .lineLimit(2...3)
                 .focused($focused)
                 .onChange(of: game.punishment) {
@@ -129,10 +144,10 @@ struct PunishmentView: View {
                         game.punishment = String(game.punishment.prefix(game.maxPunishmentLength))
                     }
                 }
-            HStack {
-                Text("Whoever's holding it when it blows does it.")
+            HStack(alignment: .firstTextBaseline) {
+                Text(game.punishmentHint)
                     .font(.fredoka(13))
-                    .foregroundStyle(Theme.textFaint)
+                    .foregroundStyle(Theme.textDim)
                 Spacer()
                 Text("\(game.punishment.count)/\(game.maxPunishmentLength)")
                     .font(.fredoka(13, .bold))
@@ -140,13 +155,8 @@ struct PunishmentView: View {
                     .monospacedDigit()
             }
         }
-        .glassCard(cornerRadius: 24, padding: 20)
-        .overlay(
-            RoundedRectangle(cornerRadius: 24, style: .continuous)
-                .strokeBorder(Theme.fireGradient, lineWidth: 2)
-                .opacity(focused ? 1 : 0)
-        )
-        .shadow(color: Theme.fire.opacity(focused ? 0.3 : 0), radius: 18)
+        .noteCard(rotation: focused ? 0 : -1.5)
+        .scaleEffect(focused ? 1.02 : 1)
         .onTapGesture { focused = true }
     }
 
@@ -154,22 +164,23 @@ struct PunishmentView: View {
         VStack(alignment: .leading, spacing: 10) {
             SectionLabel(text: "Quick picks", color: Theme.textFaint, alignment: .leading)
             ScrollView(.horizontal) {
-                VStack(alignment: .leading, spacing: 8) {
-                    ForEach(pickRows, id: \.self) { row in
-                        HStack(spacing: 8) {
-                            ForEach(row, id: \.self) { pick in
-                                pickChip(pick)
+                VStack(alignment: .leading, spacing: 10) {
+                    ForEach(Array(pickRows.enumerated()), id: \.offset) { r, row in
+                        HStack(spacing: 10) {
+                            ForEach(Array(row.enumerated()), id: \.element) { c, pick in
+                                pickCard(pick, tilt: pickTilts[(r * 3 + c) % pickTilts.count])
                             }
                         }
                     }
                 }
+                .padding(.vertical, 4)
             }
             .scrollIndicators(.hidden)
             .scrollClipDisabled()
         }
     }
 
-    private func pickChip(_ pick: String) -> some View {
+    private func pickCard(_ pick: String, tilt: Double) -> some View {
         let isPicked = game.punishment == pick
         return Button {
             SFX.play(.tap)
@@ -178,12 +189,19 @@ struct PunishmentView: View {
             withAnimation(.snappy) { game.punishment = pick }
         } label: {
             Text(pick)
-                .font(.fredoka(15, .semibold))
-                .foregroundStyle(isPicked ? Theme.bgBottom : Theme.text)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 9)
-                .background(Capsule().fill(isPicked ? AnyShapeStyle(Theme.goldGradient) : AnyShapeStyle(Theme.surface)))
-                .overlay(Capsule().strokeBorder(Theme.stroke, lineWidth: isPicked ? 0 : 1))
+                .font(.hand(21))
+                .foregroundStyle(Theme.ink)
+                .lineLimit(1)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 6)
+                .background(RoundedRectangle(cornerRadius: 6, style: .continuous).fill(isPicked ? Theme.yellow.opacity(0.45) : Theme.card))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 6, style: .continuous)
+                        .strokeBorder(isPicked ? Theme.orange : Theme.stroke, lineWidth: isPicked ? 1.5 : 1)
+                )
+                .shadow(color: Theme.shadow, radius: 2, y: 2)
+                .rotationEffect(.degrees(isPicked ? 0 : tilt))
+                .scaleEffect(isPicked ? 1.06 : 1)
         }
         .buttonStyle(.pressable)
     }

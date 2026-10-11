@@ -18,12 +18,12 @@ struct HowToPlayView: View {
         let modes = GameType.allCases.map { "\($0.title) (\($0.rounds))" }.formatted(.list(type: .or))
         return [
             Rule(symbol: "person.3.fill", color: Theme.blue, title: "Gather the crew", text: "\(game.minPlayers) to \(game.maxPlayers) players. Pick a mode: \(modes) rounds."),
-            Rule(symbol: "pencil.line", color: Theme.purple, title: "Set the stakes", text: "A random player writes the punishment. Whoever's holding the potato when it blows has to do it."),
+            Rule(symbol: "pencil.line", color: Theme.purple, title: "Set the stakes", text: "A random player writes the punishment on a card. Before the final round it lasts all next round, like talking in an accent. In the final round or Quick Blast it's a one-time dare done right after the boom."),
             Rule(symbol: "flame.fill", color: Theme.fire, title: "Secret fuse", text: "Nobody knows how long it is, and it never stops. Not for minigames, not for anything."),
             Rule(symbol: "hand.point.up.left.fill", color: Theme.orange, title: "Flick to throw", text: "Flick the potato up to throw it to the named player. Time slows down while it flies."),
             Rule(symbol: "hand.raised.fill", color: Theme.green, title: "Catch it fast", text: "Tap CATCH the second it's yours. Wait 1.5s and it's forced on you."),
             Rule(symbol: "suit.spade.fill", color: Theme.pink, title: "Card roulette", text: "Every catch flips a card: safe or minigame. Six minigames, and the fuse keeps burning while you play."),
-            Rule(symbol: "burst.fill", color: Theme.yellow, title: "Boom", text: "Holding it when it blows? Do the punishment, then write the next one."),
+            Rule(symbol: "burst.fill", color: Theme.yellow, title: "Boom", text: "Holding it when it blows? The punishment is yours. Then you write the next card."),
             Rule(symbol: "trophy.fill", color: Theme.orange, title: "Win", text: "Most points after the last round wins. Ties go to whoever exploded less.")
         ]
     }
@@ -64,7 +64,7 @@ struct HowToPlayView: View {
 
     private var scoringCard: some View {
         VStack(alignment: .leading, spacing: 10) {
-            SectionLabel(text: "Scoring", color: Theme.yellow, alignment: .leading)
+            SectionLabel(text: "Scoring", color: Theme.fire, alignment: .leading)
             ForEach(scoring, id: \.0) { label, points in
                 HStack {
                     Text(label)
@@ -107,7 +107,7 @@ private struct RuleRow: View {
                 .foregroundStyle(.white)
                 .frame(width: 42, height: 42)
                 .background(Circle().fill(rule.color.gradient))
-                .shadow(color: rule.color.opacity(0.5), radius: 8)
+                .shadow(color: Theme.ink.opacity(0.2), radius: 2, x: 0, y: 2)
             VStack(alignment: .leading, spacing: 3) {
                 Text(rule.title)
                     .font(.lilita(20))

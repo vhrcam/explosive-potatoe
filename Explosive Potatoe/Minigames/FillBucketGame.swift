@@ -17,9 +17,9 @@ struct FillBucketGame: View {
     var body: some View {
         VStack(spacing: 16) {
             if isComplete {
-                MinigameHeader(label: MinigameFX.completeLabel, labelColor: Theme.green, title: "Bucket full!")
+                MinigameTitle(label: MinigameFX.completeLabel, labelColor: Theme.green, title: "Bucket full!")
             } else {
-                MinigameHeader(title: "Fill the Bucket!", subtitle: "Tap fast to pour. Get it past the green line before it leaks out.")
+                MinigameTitle(title: "Fill the Bucket!", subtitle: "Tap fast to pour. Get it past the green line before it leaks out.")
             }
 
             ZStack {
@@ -115,14 +115,13 @@ private struct BucketScene: View {
                     .padding(.horizontal, 10)
                     .padding(.vertical, 5)
                     .background(Capsule().fill(Theme.greenGradient))
-                    .shadow(color: Theme.green.opacity(0.8), radius: 8)
+                    .shadow(color: Theme.shadow, radius: 2, y: 1)
                     .position(x: 298, y: fullLineY)
 
                 Text("\(Int(level * 100))%")
                     .font(.lilita(46))
-                    .foregroundStyle(.white)
-                    .shadow(color: Theme.blue.opacity(0.9), radius: 12)
-                    .shadow(color: .black.opacity(0.3), radius: 0, y: 3)
+                    .foregroundStyle(level > 0.33 ? .white : Theme.ink)
+                    .shadow(color: Theme.ink.opacity(level > 0.33 ? 0.35 : 0), radius: 0, y: 2)
                     .monospacedDigit()
                     .contentTransition(.numericText(value: level))
                     .position(x: 165, y: 330)
@@ -135,7 +134,7 @@ private struct BucketScene: View {
 
         var shadow = context
         shadow.addFilter(.blur(radius: 8))
-        shadow.fill(Path(ellipseIn: CGRect(x: 75, y: 380, width: 180, height: 22)), with: .color(.black.opacity(0.45)))
+        shadow.fill(Path(ellipseIn: CGRect(x: 75, y: 380, width: 180, height: 22)), with: .color(.black.opacity(0.18)))
 
         if !isComplete {
             let pipe = Path(roundedRect: CGRect(x: -20, y: 18, width: 200, height: 26), cornerRadius: 6)
@@ -144,14 +143,14 @@ private struct BucketScene: View {
             context.fill(handle, with: .linearGradient(Gradient(colors: [Color(hex: 0xFF8A3D), Color(hex: 0xFF4B2B)]), startPoint: CGPoint(x: 0, y: 2), endPoint: CGPoint(x: 0, y: 16)))
             let spout = Path(roundedRect: CGRect(x: 148, y: 18, width: 38, height: 62), cornerRadius: 9)
             context.fill(spout, with: .linearGradient(steel, startPoint: CGPoint(x: 148, y: 0), endPoint: CGPoint(x: 186, y: 0)))
-            context.stroke(pipe, with: .color(.white.opacity(0.25)), lineWidth: 1)
-            context.stroke(spout, with: .color(.white.opacity(0.25)), lineWidth: 1)
+            context.stroke(pipe, with: .color(Theme.ink.opacity(0.25)), lineWidth: 1)
+            context.stroke(spout, with: .color(Theme.ink.opacity(0.25)), lineWidth: 1)
         }
 
         var handleArc = Path()
         handleArc.move(to: CGPoint(x: 78, y: 172))
         handleArc.addCurve(to: CGPoint(x: 252, y: 172), control1: CGPoint(x: 78, y: 92), control2: CGPoint(x: 252, y: 92))
-        context.stroke(handleArc, with: .color(.white.opacity(0.35)), style: StrokeStyle(lineWidth: 4, lineCap: .round))
+        context.stroke(handleArc, with: .color(Color(hex: 0x7C8794)), style: StrokeStyle(lineWidth: 4, lineCap: .round))
 
         var body = Path()
         body.move(to: CGPoint(x: 65, y: 170))
@@ -159,7 +158,7 @@ private struct BucketScene: View {
         body.addLine(to: CGPoint(x: 253, y: bottom))
         body.addLine(to: CGPoint(x: 77, y: bottom))
         body.closeSubpath()
-        context.fill(body, with: .color(.white.opacity(0.06)))
+        context.fill(body, with: .color(.white.opacity(0.45)))
 
         var water = context
         water.clip(to: body)
@@ -190,17 +189,17 @@ private struct BucketScene: View {
         }
 
         let gloss = Path(roundedRect: CGRect(x: 82, y: 186, width: 10, height: 170), cornerRadius: 5)
-        context.fill(gloss, with: .color(.white.opacity(0.1)))
+        context.fill(gloss, with: .color(.white.opacity(0.5)))
 
         if !isComplete {
             var line = Path()
             line.move(to: CGPoint(x: 70, y: fullLineY))
             line.addLine(to: CGPoint(x: 260, y: fullLineY))
-            context.stroke(line, with: .color(Theme.green.opacity(0.3)), lineWidth: 8)
+            context.stroke(line, with: .color(Theme.green.opacity(0.15)), lineWidth: 8)
             context.stroke(line, with: .color(Theme.green), style: StrokeStyle(lineWidth: 2.5, dash: [9, 6]))
         }
 
-        context.stroke(body, with: .color(.white.opacity(0.3)), style: StrokeStyle(lineWidth: 1.5, lineJoin: .round))
+        context.stroke(body, with: .color(Theme.ink.opacity(0.35)), style: StrokeStyle(lineWidth: 1.5, lineJoin: .round))
 
         let rim = Path(roundedRect: CGRect(x: 57, y: 162, width: 216, height: 16), cornerRadius: 8)
         context.fill(rim, with: .linearGradient(steel, startPoint: CGPoint(x: 0, y: 162), endPoint: CGPoint(x: 0, y: 178)))

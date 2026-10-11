@@ -48,7 +48,7 @@ struct Sparkle: View {
         SparkleShape()
             .fill(fill)
             .frame(width: size, height: size)
-            .shadow(color: fill.opacity(0.8), radius: size * 0.3)
+            .shadow(color: Theme.shadow, radius: 1, y: 1)
             .scaleEffect(twinkle ? 1 : 0.7)
             .rotationEffect(.degrees(twinkle ? 12 : -12))
             .onAppear {
@@ -104,15 +104,11 @@ struct ResultBadge: View {
     @State private var drawn = false
 
     var body: some View {
-        let color = isCheck ? Theme.green : Theme.fire
         ZStack {
-            Circle()
-                .fill(RadialGradient(colors: [color.opacity(0.5), .clear], center: .center, startRadius: size * 0.3, endRadius: size * 0.85))
-                .frame(width: size * 1.7, height: size * 1.7)
             Circle()
                 .fill(isCheck ? Theme.greenGradient : Theme.fireGradient)
                 .overlay(Circle().strokeBorder(.white.opacity(0.4), lineWidth: max(1.5, size * 0.025)))
-                .shadow(color: color.opacity(0.7), radius: size * 0.15)
+                .shadow(color: Theme.shadow, radius: size * 0.06, y: size * 0.04)
             Group {
                 if isCheck {
                     CheckShape()
@@ -164,7 +160,7 @@ struct CrownView: View {
             }
         }
         .frame(width: 76, height: 54)
-        .shadow(color: Theme.yellow.opacity(0.7), radius: 12)
+        .shadow(color: Theme.shadow, radius: 3, y: 2)
     }
 }
 
@@ -182,7 +178,7 @@ struct ExplosionIcon: View {
 
 struct ShakeLines: View {
     var flipped = false
-    var color: Color = Theme.yellow
+    var color: Color = Theme.ink
 
     var body: some View {
         VStack(spacing: 14) {

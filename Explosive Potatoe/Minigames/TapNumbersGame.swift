@@ -55,16 +55,16 @@ struct TapNumbersGame: View {
     @ViewBuilder
     private var header: some View {
         if isComplete {
-            MinigameHeader(label: MinigameFX.completeLabel, labelColor: Theme.green, title: "All 9!")
+            MinigameTitle(label: MinigameFX.completeLabel, labelColor: Theme.green, title: "All 9!")
         } else if let wrongTile {
-            MinigameHeader(
+            MinigameTitle(
                 label: "Wrong tile · reshuffling",
                 labelColor: Theme.fire,
                 title: "Oops! That's \(wrongTile)",
                 subtitle: "You needed \(needed). The board reshuffles, start again from 1."
             )
         } else {
-            MinigameHeader(title: "Tap 1 → 9", subtitle: "In order, fast. A wrong tap reshuffles the board!")
+            MinigameTitle(title: "Tap 1 → 9", subtitle: "In order, fast. A wrong tap reshuffles the board!")
         }
     }
 
@@ -118,14 +118,9 @@ private struct NumberTile: View {
                 .shadow(color: .black.opacity(look == .todo ? 0 : 0.25), radius: 0, y: 2)
                 .frame(width: size, height: size)
                 .background(shape.fill(fill))
-                .overlay(
-                    shape.strokeBorder(
-                        LinearGradient(colors: [.white.opacity(0.45), .white.opacity(0.04)], startPoint: .top, endPoint: .bottom),
-                        lineWidth: 1.2
-                    )
-                )
+                .overlay(shape.strokeBorder(border, lineWidth: 1.2))
                 .background(shape.fill(lip).offset(y: 5))
-                .shadow(color: glow.opacity(0.55), radius: 14, y: 6)
+                .shadow(color: Theme.shadow, radius: 6, y: 4)
         }
         .buttonStyle(.pressable)
         .opacity(look == .dim || look == .dimDone ? 0.35 : 1)
@@ -147,17 +142,16 @@ private struct NumberTile: View {
 
     private var lip: Color {
         switch look {
-        case .todo, .dim: .black.opacity(0.3)
+        case .todo, .dim: Color(hex: 0xD2C2A2)
         case .done, .dimDone: Color(hex: 0x0E7A52)
         case .wrong: Color(hex: 0x9E2A14)
         }
     }
 
-    private var glow: Color {
+    private var border: AnyShapeStyle {
         switch look {
-        case .todo, .dim, .dimDone: .clear
-        case .done: Theme.green
-        case .wrong: Theme.fire
+        case .todo, .dim: AnyShapeStyle(Theme.stroke)
+        default: AnyShapeStyle(LinearGradient(colors: [.white.opacity(0.45), .white.opacity(0.04)], startPoint: .top, endPoint: .bottom))
         }
     }
 }

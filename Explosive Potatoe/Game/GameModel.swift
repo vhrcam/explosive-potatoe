@@ -92,12 +92,20 @@ final class GameModel {
     let minPlayers = 3
     let maxPlayers = 12
     let maxPunishmentLength = 80
-    let quickPicks = [
-        "Sing a chorus", "10 push-ups", "Swap seats", "Talk in an accent",
-        "Do your best dance", "Compliment everyone", "Speak in rhymes", "Plank for 30s",
-        "Tell an embarrassing story", "Narrate the next round", "Do an impression",
-        "Wear socks on hands", "Act like a chicken", "Talk like a pirate",
-        "Freestyle rap 4 bars", "No phone next round"
+    let nextRoundPicks = [
+        "British accent all next round", "Pass with your weak hand next round", "Stand up all next round",
+        "No saying names next round", "Narrate everything next round", "Only ask questions next round",
+        "Shout \"HOT!\" every pass next round", "Sit on the floor next round", "Whisper all next round",
+        "Robot voice all next round", "No laughing next round", "Talk like a pirate all next round",
+        "Hum while holding it next round", "Compliment whoever you pass to next round",
+        "One leg up while holding it next round", "Call everyone \"captain\" next round"
+    ]
+    let oneShotPicks = [
+        "Do 15 push-ups", "Sing a full chorus out loud", "Plank for 30 seconds", "Do 20 jumping jacks",
+        "Tell your most embarrassing story", "Do an impression the group picks", "Dance for 15 seconds, no music",
+        "Compliment every player", "Talk like a pirate for 1 minute", "Freestyle rap 4 bars",
+        "Wall sit for 30 seconds", "Act like a chicken for 10 seconds", "Speak in rhymes for 1 minute",
+        "Do your best runway walk", "Do 10 squats", "Give a 30-second motivational speech"
     ]
     let autoGiveTime = 1.5
     let passPoints = 10
@@ -123,6 +131,8 @@ final class GameModel {
     var passElapsed = 0.0
     var isSlowMo = false
     var cardLabel = ""
+    var potatoPokes = 0
+    var potatoDrag = CGSize.zero
     var turn = 0
     var lastCatch: (points: Int, label: String)?
     private(set) var passPending = false
@@ -135,6 +145,15 @@ final class GameModel {
     @ObservationIgnored private var loop: Task<Void, Never>?
 
     var isLastRound: Bool { round >= gameType.rounds }
+    var punishmentIsNextRound: Bool { !isLastRound }
+    var quickPicks: [String] { punishmentIsNextRound ? nextRoundPicks : oneShotPicks }
+
+    var punishmentHint: String {
+        let who = phase == .exploded ? name(holder) : "The loser"
+        return punishmentIsNextRound
+            ? "\(who) does it all through round \(round + 1)."
+            : "\(who) does it right after the boom."
+    }
     var hasEnoughPlayers: Bool { players.count >= minPlayers }
     var isFull: Bool { players.count >= maxPlayers }
 
@@ -204,6 +223,7 @@ final class GameModel {
         passPending = false
         isSlowMo = false
         lastCatch = nil
+        potatoDrag = .zero
         nextHeartbeat = 0
         turn += 1
         cardLabel = "\(name(holder)) lit the fuse"

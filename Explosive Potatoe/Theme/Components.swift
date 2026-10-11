@@ -9,7 +9,7 @@ struct ChunkyButtonStyle: ButtonStyle {
 
     func makeBody(configuration: Configuration) -> some View {
         let pressed = configuration.isPressed
-        let shape = RoundedRectangle(cornerRadius: 20, style: .continuous)
+        let shape = RoundedRectangle(cornerRadius: 18, style: .continuous)
         configuration.label
             .font(font)
             .foregroundStyle(textColor)
@@ -21,17 +21,18 @@ struct ChunkyButtonStyle: ButtonStyle {
             .background(shape.fill(fill))
             .overlay(
                 shape.strokeBorder(
-                    LinearGradient(colors: [.white.opacity(0.55), .white.opacity(0.05)], startPoint: .top, endPoint: .bottom),
+                    LinearGradient(colors: [.white.opacity(0.5), .white.opacity(0)], startPoint: .top, endPoint: .center),
                     lineWidth: 1.5
                 )
             )
+            .overlay(shape.strokeBorder(Theme.ink.opacity(kind == .secondary ? 0.22 : 0.35), lineWidth: 1.5))
             .background(shape.fill(lip).offset(y: pressed ? 1 : 5))
             .offset(y: pressed ? 4 : 0)
             .scaleEffect(pressed ? 0.985 : 1)
-            .shadow(color: glow.opacity(isEnabled ? 0.45 : 0), radius: 18, y: 8)
+            .shadow(color: Theme.shadow.opacity(isEnabled ? 1 : 0), radius: pressed ? 2 : 7, y: pressed ? 2 : 6)
             .compositingGroup()
             .saturation(isEnabled ? 1 : 0)
-            .opacity(isEnabled ? 1 : 0.4)
+            .opacity(isEnabled ? 1 : 0.45)
             .animation(.spring(response: 0.22, dampingFraction: 0.6), value: pressed)
             .onChange(of: pressed) {
                 if pressed {
@@ -53,26 +54,20 @@ struct ChunkyButtonStyle: ButtonStyle {
 
     private var lip: Color {
         switch kind {
-        case .primary: Color(hex: 0x9E2A14)
-        case .secondary: Color.black.opacity(0.35)
-        case .blue: Color(hex: 0x1D4FA8)
-        case .green: Color(hex: 0x0E7A52)
-        case .gold: Color(hex: 0xB86E00)
-        }
-    }
-
-    private var glow: Color {
-        switch kind {
-        case .primary: Theme.fire
-        case .secondary: .clear
-        case .blue: Theme.blue
-        case .green: Theme.green
-        case .gold: Theme.yellow
+        case .primary: Color(hex: 0x8E2414)
+        case .secondary: Color(hex: 0xC9B48E)
+        case .blue: Color(hex: 0x1A4B85)
+        case .green: Color(hex: 0x17603A)
+        case .gold: Color(hex: 0xA8680A)
         }
     }
 
     private var textColor: Color {
-        kind == .gold ? Color(hex: 0x4A2800) : .white
+        switch kind {
+        case .secondary: Theme.ink
+        case .gold: Color(hex: 0x3E2400)
+        default: .white
+        }
     }
 }
 
@@ -106,10 +101,11 @@ struct CircleIconButton: View {
         } label: {
             Image(systemName: systemName)
                 .font(.system(size: 16, weight: .heavy))
-                .foregroundStyle(Theme.text)
+                .foregroundStyle(Theme.ink)
                 .frame(width: 44, height: 44)
-                .background(Circle().fill(Theme.surfaceStrong))
+                .background(Circle().fill(Theme.card))
                 .overlay(Circle().strokeBorder(Theme.stroke, lineWidth: 1))
+                .shadow(color: Theme.shadow, radius: 4, y: 3)
         }
         .buttonStyle(.pressable)
     }
@@ -154,85 +150,79 @@ struct SectionLabel: View {
 enum Backdrop {
     case night, slowMo, danger, victory
 
-    var colors: [Color] {
+    var wash: Color {
         switch self {
-        case .night: [Theme.bgTop, Theme.bgBottom]
-        case .slowMo: [Color(hex: 0x0F2C55), Color(hex: 0x060F24)]
-        case .danger: [Color(hex: 0x45101E), Color(hex: 0x14040B)]
-        case .victory: [Color(hex: 0x2E1858), Color(hex: 0x0D0820)]
+        case .night: .clear
+        case .slowMo: Color(hex: 0x6FA8E8).opacity(0.22)
+        case .danger: Color(hex: 0xE2442B).opacity(0.16)
+        case .victory: Color(hex: 0xF2B530).opacity(0.2)
         }
     }
 
-    var glow: Color {
+    var edge: Color {
         switch self {
-        case .night: Theme.fire
-        case .slowMo: Theme.blue
-        case .danger: Theme.fire
-        case .victory: Theme.yellow
-        }
-    }
-
-    var ember: Color {
-        switch self {
-        case .slowMo: Color(hex: 0xA8D8FF)
-        case .victory: Theme.yellow
-        default: Theme.orange
+        case .night: Color(hex: 0x7A5B36).opacity(0.18)
+        case .slowMo: Color(hex: 0x1D4F8A).opacity(0.3)
+        case .danger: Color(hex: 0x3A1206).opacity(0.55)
+        case .victory: Color(hex: 0xA8680A).opacity(0.28)
         }
     }
 }
 
 struct ScreenBackground: View {
     var mood = Backdrop.night
-    @State private var drift = false
 
     var body: some View {
         ZStack {
-            LinearGradient(colors: mood.colors, startPoint: .top, endPoint: .bottom)
-            RadialGradient(colors: [mood.glow.opacity(0.32), .clear], center: .center, startRadius: 0, endRadius: 260)
-                .frame(width: 520, height: 520)
-                .offset(x: drift ? 70 : -60, y: drift ? 160 : 240)
-            RadialGradient(colors: [Theme.purple.opacity(0.28), .clear], center: .center, startRadius: 0, endRadius: 220)
-                .frame(width: 440, height: 440)
-                .offset(x: drift ? -110 : 90, y: drift ? -300 : -220)
-            EmberField(color: mood.ember)
+            Theme.paper
+            Image("PaperTexture")
+                .resizable()
+                .scaledToFill()
+            mood.wash
+            RadialGradient(colors: [.clear, .clear, mood.edge], center: .center, startRadius: 120, endRadius: 560)
         }
         .ignoresSafeArea()
-        .animation(.easeInOut(duration: 0.5), value: mood)
-        .onAppear {
-            withAnimation(.easeInOut(duration: 7).repeatForever(autoreverses: true)) { drift = true }
-        }
+        .animation(.easeInOut(duration: 0.4), value: mood)
+        .allowsHitTesting(false)
     }
 }
 
-struct EmberField: View {
-    var count = 26
-    var color: Color = Theme.orange
+private struct NoteCardBackground: View {
+    var lineSpacing: CGFloat = 30
+    var topInset: CGFloat = 46
 
     var body: some View {
-        TimelineView(.animation(minimumInterval: 1 / 30)) { timeline in
-            let t = timeline.date.timeIntervalSinceReferenceDate
+        ZStack {
+            RoundedRectangle(cornerRadius: 6, style: .continuous)
+                .fill(Theme.card)
             Canvas { context, size in
-                for i in 0..<count {
-                    let seed = Double(i) + 1
-                    let speed = 0.025 + random(seed * 1.7) * 0.05
-                    let progress = (t * speed + random(seed * 3.1)).truncatingRemainder(dividingBy: 1)
-                    let x = (random(seed * 5.3) + sin(t * 0.7 + seed * 2) * 0.03) * size.width
-                    let y = (1.05 - progress * 1.1) * size.height
-                    let radius = 1.2 + random(seed * 7.7) * 2.4
-                    let alpha = sin(progress * .pi) * (0.35 + random(seed * 9.1) * 0.5)
-                    let glow = CGRect(x: x - radius * 3, y: y - radius * 3, width: radius * 6, height: radius * 6)
-                    let core = CGRect(x: x - radius, y: y - radius, width: radius * 2, height: radius * 2)
-                    context.fill(Path(ellipseIn: glow), with: .color(color.opacity(alpha * 0.18)))
-                    context.fill(Path(ellipseIn: core), with: .color(color.opacity(alpha)))
+                var y = topInset
+                while y < size.height - 8 {
+                    var line = Path()
+                    line.move(to: CGPoint(x: 0, y: y))
+                    line.addLine(to: CGPoint(x: size.width, y: y))
+                    context.stroke(line, with: .color(Theme.noteRule), lineWidth: 1)
+                    y += lineSpacing
                 }
+                var margin = Path()
+                margin.move(to: CGPoint(x: 34, y: 0))
+                margin.addLine(to: CGPoint(x: 34, y: size.height))
+                context.stroke(margin, with: .color(Theme.noteMargin), lineWidth: 1.2)
             }
+            .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
         }
-        .allowsHitTesting(false)
+        .shadow(color: Theme.shadow, radius: 10, y: 6)
     }
+}
 
-    private func random(_ seed: Double) -> Double {
-        let value = sin(seed * 12.9898) * 43758.5453
-        return value - value.rounded(.down)
+private struct TapeStrip: View {
+    var body: some View {
+        Rectangle()
+            .fill(Color(hex: 0xF3E3A6).opacity(0.75))
+            .overlay(Rectangle().strokeBorder(Theme.ink.opacity(0.06), lineWidth: 1))
+            .frame(width: 86, height: 24)
+            .rotationEffect(.degrees(-3))
+            .shadow(color: Theme.shadow.opacity(0.5), radius: 1, y: 1)
     }
 }
 
@@ -250,17 +240,28 @@ extension View {
         let shape = RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
         return self
             .padding(padding)
-            .background(shape.fill(Theme.surface))
-            .background(shape.fill(LinearGradient(colors: [.white.opacity(0.06), .clear], startPoint: .top, endPoint: .center)))
+            .background(shape.fill(Theme.surfaceStrong))
             .overlay(shape.strokeBorder(Theme.stroke, lineWidth: 1))
+            .shadow(color: Theme.shadow, radius: 8, y: 4)
+    }
+
+    func noteCard(rotation: Double = 0, padding: CGFloat = 20, taped: Bool = true) -> some View {
+        self
+            .padding(.leading, 26)
+            .padding(padding)
+            .padding(.top, 12)
+            .background(NoteCardBackground())
+            .overlay(alignment: .top) {
+                if taped { TapeStrip().offset(y: -10) }
+            }
+            .rotationEffect(.degrees(rotation))
     }
 
     func bigName(_ color: Color, size: CGFloat = 84) -> some View {
         self
             .font(.lilita(size))
             .foregroundStyle(color)
-            .shadow(color: color.opacity(0.55), radius: 20)
-            .shadow(color: .black.opacity(0.35), radius: 0, x: 0, y: 4)
+            .shadow(color: Theme.ink.opacity(0.28), radius: 0, x: 2, y: 3)
             .lineLimit(1)
             .minimumScaleFactor(0.4)
     }
@@ -278,8 +279,8 @@ struct Avatar: View {
             .foregroundStyle(.white)
             .frame(width: size, height: size)
             .background(Circle().fill(LinearGradient(colors: [color.opacity(0.85), color], startPoint: .top, endPoint: .bottom)))
-            .overlay(Circle().strokeBorder(.white.opacity(0.3), lineWidth: 1.5))
-            .shadow(color: color.opacity(0.5), radius: 8)
+            .overlay(Circle().strokeBorder(.white.opacity(0.7), lineWidth: 2))
+            .shadow(color: Theme.shadow, radius: 3, y: 2)
     }
 }
 
@@ -299,10 +300,11 @@ struct GameHUD: View {
                     .contentTransition(.numericText(value: Double(game.players[game.holder].points)))
             }
             .font(.fredoka(14, .bold))
-            .foregroundStyle(Color(hex: 0x4A2800))
+            .foregroundStyle(Color(hex: 0x3E2400))
             .padding(.horizontal, 14)
             .padding(.vertical, 9)
             .background(Capsule().fill(Theme.goldGradient))
+            .overlay(Capsule().strokeBorder(Theme.ink.opacity(0.25), lineWidth: 1))
             .animation(.spring, value: game.players[game.holder].points)
         }
     }
@@ -321,8 +323,7 @@ private struct FuseTimePill: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 9)
-        .background(Capsule().fill(.black.opacity(0.35)))
-        .overlay(Capsule().strokeBorder(Theme.yellow.opacity(0.35), lineWidth: 1))
+        .background(Capsule().fill(Theme.ink))
     }
 }
 
@@ -336,11 +337,11 @@ struct ProgressBarView: View {
         HStack(spacing: 12) {
             GeometryReader { geo in
                 ZStack(alignment: .leading) {
-                    Capsule().fill(Theme.surfaceStrong)
+                    Capsule().fill(Theme.ink.opacity(0.08))
                     Capsule()
-                        .fill(LinearGradient(colors: [fill.opacity(0.75), fill], startPoint: .leading, endPoint: .trailing))
+                        .fill(LinearGradient(colors: [fill.opacity(0.8), fill], startPoint: .leading, endPoint: .trailing))
                         .frame(width: geo.size.width * CGFloat(value) / CGFloat(max(total, 1)))
-                        .shadow(color: fill.opacity(0.6), radius: 8)
+                    Capsule().strokeBorder(Theme.ink.opacity(0.15), lineWidth: 1)
                 }
             }
             .frame(height: 12)
@@ -364,36 +365,7 @@ struct FuseWarning: View {
         }
         .padding(.horizontal, 18)
         .padding(.vertical, 10)
-        .background(Capsule().fill(.black.opacity(0.35)))
-        .overlay(Capsule().strokeBorder(Theme.yellow.opacity(0.3), lineWidth: 1))
-    }
-}
-
-struct MinigameHeader: View {
-    var label: String?
-    var labelColor: Color = Theme.textDim
-    let title: String
-    var subtitle: String?
-
-    var body: some View {
-        VStack(spacing: 10) {
-            if let label {
-                SectionLabel(text: label, color: labelColor)
-            }
-            Text(title)
-                .font(.lilita(40))
-                .foregroundStyle(Theme.text)
-                .multilineTextAlignment(.center)
-                .lineLimit(2)
-                .minimumScaleFactor(0.6)
-            if let subtitle {
-                Text(subtitle)
-                    .font(.fredoka(16))
-                    .foregroundStyle(Theme.textDim)
-                    .multilineTextAlignment(.center)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-        }
+        .background(Capsule().fill(Theme.ink))
     }
 }
 
@@ -408,49 +380,6 @@ struct CompleteFooter: View {
             Spacer(minLength: 0)
             Button("Back to the Potato", action: onDone)
                 .buttonStyle(.chunky(.green))
-        }
-    }
-}
-
-struct PotatoImage: View {
-    enum Mood: String { case happy = "PotatoHappy", nervous = "PotatoNervous", boom = "PotatoBoom" }
-
-    let mood: Mood
-    var width: CGFloat
-
-    var body: some View {
-        Image(mood.rawValue)
-            .resizable()
-            .scaledToFit()
-            .frame(width: width)
-    }
-}
-
-struct GlowPotato: View {
-    let mood: PotatoImage.Mood
-    let width: CGFloat
-    var glow: Color = Theme.orange
-    var bobs = true
-    @State private var bob = false
-
-    var body: some View {
-        ZStack {
-            Circle()
-                .fill(RadialGradient(colors: [glow.opacity(0.55), glow.opacity(0.15), .clear], center: .center, startRadius: 0, endRadius: width * 0.75))
-                .frame(width: width * 1.6, height: width * 1.6)
-                .scaleEffect(bob ? 1.06 : 0.96)
-            Ellipse()
-                .fill(.black.opacity(0.35))
-                .frame(width: width * 0.6, height: width * 0.09)
-                .blur(radius: 6)
-                .offset(y: width * 0.62)
-                .scaleEffect(bob ? 0.88 : 1)
-            PotatoImage(mood: mood, width: width)
-                .offset(y: bob ? -width * 0.04 : 0)
-        }
-        .onAppear {
-            guard bobs else { return }
-            withAnimation(.easeInOut(duration: 1.3).repeatForever(autoreverses: true)) { bob = true }
         }
     }
 }

@@ -48,17 +48,17 @@ struct SortCratesGame: View {
     @ViewBuilder
     private var header: some View {
         if isComplete {
-            MinigameHeader(label: MinigameFX.completeLabel, labelColor: Theme.green, title: "All sorted!")
+            MinigameTitle(label: MinigameFX.completeLabel, labelColor: Theme.green, title: "All sorted!")
         } else if wrongBin != nil {
             let name = Theme.crateNames[wrongColor]
-            MinigameHeader(
+            MinigameTitle(
                 label: "Wrong bin · bouncing back",
                 labelColor: Theme.fire,
                 title: "Not that bin!",
                 subtitle: "\(name) goes in \(name.lowercased()). Back to the pile."
             )
         } else {
-            MinigameHeader(title: "Sort the Crates", subtitle: "Drag each crate into the bin that matches its color.")
+            MinigameTitle(title: "Sort the Crates", subtitle: "Drag each crate into the bin that matches its color.")
         }
     }
 
@@ -100,7 +100,7 @@ struct SortCratesGame: View {
             }
 
             if let burst {
-                Burst(colors: [Theme.crateColors[burst.bin], Theme.yellow, .white], count: 14, distance: 70, pieceSize: 11)
+                Burst(colors: [Theme.crateColors[burst.bin], Theme.yellow, Theme.orange], count: 14, distance: 70, pieceSize: 11)
                     .id(burst.id)
                     .position(x: binX[burst.bin], y: binTop + 10)
             }
@@ -216,7 +216,7 @@ struct CrateView: View {
         }
         .frame(width: size, height: size)
         .background(shape.fill(dark).offset(y: size * 0.08))
-        .shadow(color: color.opacity(isLifted ? 0.8 : 0.35), radius: isLifted ? 18 : 8, y: isLifted ? 14 : 4)
+        .shadow(color: Theme.shadow.opacity(isLifted ? 1.6 : 1), radius: isLifted ? 14 : 4, y: isLifted ? 14 : 3)
     }
 }
 
@@ -246,9 +246,9 @@ struct BinView: View {
         ZStack(alignment: .top) {
             ZStack {
                 BinBodyShape()
-                    .fill(LinearGradient(colors: [color.opacity(0.55), color.opacity(0.18)], startPoint: .top, endPoint: .bottom))
+                    .fill(LinearGradient(colors: [color.opacity(0.92), color.opacity(0.74)], startPoint: .top, endPoint: .bottom))
                 BinBodyShape()
-                    .fill(RadialGradient(colors: [color.opacity(isHot ? 0.7 : 0.25), .clear], center: .top, startRadius: 0, endRadius: 80))
+                    .fill(RadialGradient(colors: [.white.opacity(isHot ? 0.35 : 0.12), .clear], center: .top, startRadius: 0, endRadius: 80))
                 VStack(spacing: 6) {
                     if isFilled {
                         Image(systemName: "checkmark")
@@ -263,7 +263,7 @@ struct BinView: View {
                 }
                 .offset(y: 10)
                 BinBodyShape()
-                    .stroke(color.opacity(0.9), style: StrokeStyle(lineWidth: 2, lineJoin: .round))
+                    .stroke(dark, style: StrokeStyle(lineWidth: 2, lineJoin: .round))
             }
             .frame(width: 88, height: 100)
             .offset(y: 12)
@@ -274,7 +274,7 @@ struct BinView: View {
                 .frame(width: 102, height: 16)
         }
         .frame(width: 102, height: 112, alignment: .top)
-        .shadow(color: color.opacity(isHot ? 0.9 : 0.3), radius: isHot ? 24 : 10)
+        .shadow(color: Theme.shadow.opacity(isHot ? 1.6 : 1), radius: isHot ? 12 : 5, y: isHot ? 8 : 3)
         .scaleEffect(isHot ? 1.08 : 1, anchor: .bottom)
         .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isFilled)
     }

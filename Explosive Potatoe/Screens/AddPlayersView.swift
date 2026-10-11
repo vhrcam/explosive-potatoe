@@ -31,8 +31,7 @@ struct AddPlayersView: View {
                         .foregroundStyle(Theme.textDim)
                 }
                 Spacer()
-                PotatoImage(mood: .happy, width: 60)
-                    .rotationEffect(.degrees(8))
+                PotatoSlot(width: 56)
                     .keyframeAnimator(initialValue: CGFloat(0), trigger: game.players.count) { content, hop in
                         content.offset(y: hop)
                     } keyframes: { _ in
@@ -89,8 +88,9 @@ struct AddPlayersView: View {
             }
         }
         .screen()
-        .onAppear {
-            appeared = true
+        .onAppear { appeared = true }
+        .task {
+            try? await Task.sleep(for: .seconds(0.45))
             nameFocused = true
         }
         .onChange(of: newName) {
@@ -118,7 +118,7 @@ struct AddPlayersView: View {
                     .foregroundStyle(.white)
                     .frame(width: 46, height: 46)
                     .background(Circle().fill(Theme.fireGradient))
-                    .shadow(color: Theme.fire.opacity(trimmed.isEmpty ? 0 : 0.6), radius: 10)
+                    .shadow(color: Theme.ink.opacity(trimmed.isEmpty ? 0 : 0.25), radius: 3, x: 0, y: 2)
             }
             .buttonStyle(.pressable)
             .opacity(trimmed.isEmpty ? 0.35 : 1)
@@ -133,7 +133,7 @@ struct AddPlayersView: View {
             RoundedRectangle(cornerRadius: 22, style: .continuous)
                 .strokeBorder(nameFocused ? AnyShapeStyle(Theme.fireGradient) : AnyShapeStyle(Theme.stroke), lineWidth: nameFocused ? 2 : 1)
         )
-        .shadow(color: Theme.fire.opacity(nameFocused ? 0.3 : 0), radius: 16)
+        .shadow(color: Theme.ink.opacity(nameFocused ? 0.15 : 0.06), radius: 8, x: 0, y: 4)
         .animation(.easeOut(duration: 0.2), value: nameFocused)
     }
 

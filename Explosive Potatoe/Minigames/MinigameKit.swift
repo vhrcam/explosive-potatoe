@@ -20,6 +20,38 @@ enum MinigameFX {
     }
 }
 
+struct MinigameTitle: View {
+    var label: String?
+    var labelColor: Color = Theme.textDim
+    let title: String
+    var subtitle: String?
+
+    private let dockRoom: CGFloat = 58
+
+    var body: some View {
+        VStack(spacing: 10) {
+            VStack(spacing: 8) {
+                if let label {
+                    SectionLabel(text: label, color: labelColor)
+                }
+                Text(title)
+                    .font(.lilita(38))
+                    .foregroundStyle(Theme.text)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.55)
+            }
+            .padding(.horizontal, dockRoom)
+            if let subtitle {
+                Text(subtitle)
+                    .font(.fredoka(16))
+                    .foregroundStyle(Theme.textDim)
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+    }
+}
+
 struct Shake: GeometryEffect {
     var amount: CGFloat = 12
     var shakes: CGFloat = 4
@@ -64,7 +96,7 @@ struct Burst: View {
                             .rotationEffect(.radians(angle + .pi / 2))
                     }
                 }
-                .shadow(color: color.opacity(0.8), radius: 6)
+                .shadow(color: Theme.shadow, radius: 1, y: 1)
                 .offset(x: flown ? cos(angle) * reach : 0, y: flown ? sin(angle) * reach : 0)
                 .scaleEffect(faded ? 0.3 : 1)
                 .opacity(faded ? 0 : 1)
@@ -90,19 +122,14 @@ struct WinPop: View {
 
     var body: some View {
         ZStack {
-            Circle()
-                .fill(RadialGradient(colors: [Theme.green.opacity(0.55), .clear], center: .center, startRadius: 0, endRadius: size))
-                .frame(width: size * 2, height: size * 2)
-                .scaleEffect(shown ? 1 : 0.3)
             Burst(distance: size * 1.35)
             ResultBadge(isCheck: true, size: size)
-                .shadow(color: Theme.green.opacity(0.7), radius: 20)
                 .scaleEffect(shown ? 1 : 0.2)
                 .rotationEffect(.degrees(shown ? 0 : -40))
             Text("+\(MinigameFX.winPoints)")
                 .font(.lilita(36))
-                .foregroundStyle(Theme.goldGradient)
-                .shadow(color: Theme.orange.opacity(0.9), radius: 12)
+                .foregroundStyle(Theme.orange)
+                .shadow(color: Theme.ink.opacity(0.3), radius: 0, x: 0, y: 2)
                 .offset(y: shown ? -size * 0.95 : -size * 0.35)
                 .opacity(shown ? 1 : 0)
         }
@@ -120,7 +147,6 @@ struct MissPop: View {
 
     var body: some View {
         ResultBadge(isCheck: false, size: size)
-            .shadow(color: Theme.fire.opacity(0.8), radius: 20)
             .scaleEffect(shown ? 1 : 0.3)
             .rotationEffect(.degrees(shown ? 0 : 30))
             .allowsHitTesting(false)
@@ -140,10 +166,10 @@ struct StreakPips: View {
             ForEach(0..<total, id: \.self) { i in
                 let lit = i < value
                 Circle()
-                    .fill(lit ? AnyShapeStyle(LinearGradient(colors: [.white.opacity(0.9), color], startPoint: .top, endPoint: .center)) : AnyShapeStyle(Theme.surfaceStrong))
-                    .overlay(Circle().strokeBorder(lit ? color : Theme.stroke, lineWidth: 1.5))
+                    .fill(lit ? AnyShapeStyle(LinearGradient(colors: [color.mix(with: .white, by: 0.3), color], startPoint: .top, endPoint: .bottom)) : AnyShapeStyle(Theme.surfaceStrong))
+                    .overlay(Circle().strokeBorder(lit ? color.mix(with: .black, by: 0.2) : Theme.stroke, lineWidth: 1.5))
                     .frame(width: 18, height: 18)
-                    .shadow(color: color.opacity(lit ? 0.8 : 0), radius: 8)
+                    .shadow(color: Theme.shadow, radius: lit ? 3 : 1, y: lit ? 2 : 1)
                     .scaleEffect(lit ? 1.15 : 1)
             }
         }

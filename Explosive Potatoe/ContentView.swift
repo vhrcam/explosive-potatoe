@@ -27,9 +27,10 @@ struct ContentView: View {
             }
             .transition(.opacity.combined(with: .scale(scale: 0.97)))
         }
+        .potatoStage(game)
         .animation(.easeInOut(duration: 0.3), value: game.phase)
-        .preferredColorScheme(.dark)
-        .tint(Theme.orange)
+        .preferredColorScheme(.light)
+        .tint(Theme.fire)
     }
 }
 

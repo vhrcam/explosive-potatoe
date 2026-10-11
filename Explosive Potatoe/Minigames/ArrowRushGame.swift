@@ -73,11 +73,11 @@ struct ArrowRushGame: View {
     @ViewBuilder
     private var header: some View {
         if isComplete {
-            MinigameHeader(label: MinigameFX.completeLabel, labelColor: Theme.green, title: "Lightning fingers!")
+            MinigameTitle(label: MinigameFX.completeLabel, labelColor: Theme.green, title: "Lightning fingers!")
         } else if misses > 0 && streak == 0 {
-            MinigameHeader(label: "Wrong way · streak reset", labelColor: Theme.fire, title: "Other way!", subtitle: "Swipe the way the arrow points, \(goal) in a row.")
+            MinigameTitle(label: "Wrong way · streak reset", labelColor: Theme.fire, title: "Other way!", subtitle: "Swipe the way the arrow points, \(goal) in a row.")
         } else {
-            MinigameHeader(title: "Arrow Rush", subtitle: "Swipe the way the arrow points, \(goal) in a row.")
+            MinigameTitle(title: "Arrow Rush", subtitle: "Swipe the way the arrow points, \(goal) in a row.")
         }
     }
 
@@ -85,10 +85,9 @@ struct ArrowRushGame: View {
         let shape = RoundedRectangle(cornerRadius: 28, style: .continuous)
         return ZStack {
             shape.fill(Theme.surface)
-            shape.fill(RadialGradient(colors: [arrow.color.opacity(isComplete ? 0 : 0.28), .clear], center: .center, startRadius: 0, endRadius: 180))
+            shape.fill(RadialGradient(colors: [arrow.color.opacity(isComplete ? 0 : 0.14), .clear], center: .center, startRadius: 0, endRadius: 180))
                 .animation(.easeOut(duration: 0.25), value: arrow)
             shape.strokeBorder(wrongFlash ? Theme.fire : Theme.stroke, lineWidth: wrongFlash ? 3 : 1)
-                .shadow(color: Theme.fire.opacity(wrongFlash ? 0.8 : 0), radius: 16)
 
             if isComplete {
                 WinPop(size: 120)
@@ -96,8 +95,8 @@ struct ArrowRushGame: View {
                 Image(systemName: arrow.symbol)
                     .font(.system(size: 150, weight: .black))
                     .foregroundStyle(LinearGradient(colors: [arrow.color.mix(with: .white, by: 0.35), arrow.color], startPoint: .top, endPoint: .bottom))
-                    .shadow(color: arrow.color.opacity(0.8), radius: 24)
-                    .shadow(color: .black.opacity(0.3), radius: 0, y: 5)
+                    .shadow(color: Theme.ink.opacity(0.25), radius: 0, y: 4)
+                    .shadow(color: Theme.shadow, radius: 8, y: 6)
                     .offset(x: drag.width * followFactor, y: drag.height * followFactor)
                     .shake(misses, amount: 16)
                     .id(arrowID)

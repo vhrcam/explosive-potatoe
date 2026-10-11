@@ -15,14 +15,18 @@ struct PlayersView: View {
             }
             .staggerIn(appeared, 0)
 
-            VStack(alignment: .leading, spacing: 4) {
-                Text("Who's playing?")
-                    .font(.lilita(40))
-                    .foregroundStyle(Theme.text)
-                Text("\(game.minPlayers) to \(game.maxPlayers) players. A random one sets the first punishment.")
-                    .font(.fredoka(16))
-                    .foregroundStyle(Theme.textDim)
-                    .fixedSize(horizontal: false, vertical: true)
+            HStack(alignment: .top, spacing: 12) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Who's playing?")
+                        .font(.lilita(40))
+                        .foregroundStyle(Theme.text)
+                    Text("\(game.minPlayers) to \(game.maxPlayers) players. A random one sets the first punishment.")
+                        .font(.fredoka(16))
+                        .foregroundStyle(Theme.textDim)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                Spacer(minLength: 0)
+                PotatoSlot(width: 58)
             }
             .staggerIn(appeared, 1)
 
@@ -191,7 +195,7 @@ private struct ModeCard: View {
                 RoundedRectangle(cornerRadius: 20, style: .continuous)
                     .strokeBorder(isSelected ? AnyShapeStyle(Theme.fireGradient) : AnyShapeStyle(Theme.stroke), lineWidth: isSelected ? 2 : 1)
             )
-            .shadow(color: Theme.orange.opacity(isSelected ? 0.45 : 0), radius: 14)
+            .shadow(color: Theme.ink.opacity(isSelected ? 0.18 : 0), radius: 6, x: 0, y: 3)
             .scaleEffect(isSelected ? 1 : 0.95)
         }
         .buttonStyle(.pressable)

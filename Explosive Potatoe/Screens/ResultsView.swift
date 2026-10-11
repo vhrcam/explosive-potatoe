@@ -125,7 +125,7 @@ private struct PodiumColumn: View {
                         .rotationEffect(.degrees(isUp ? -8 : -40))
                 }
                 Avatar(name: player.name, colorIndex: player.colorIndex, size: place == 1 ? 64 : 50)
-                    .shadow(color: place == 1 ? Theme.yellow.opacity(0.6) : .clear, radius: 16)
+                    .shadow(color: Theme.ink.opacity(0.2), radius: 3, x: 0, y: 2)
                 Text(player.name)
                     .font(.fredoka(place == 1 ? 18 : 16, .bold))
                     .foregroundStyle(Theme.text)
@@ -136,7 +136,7 @@ private struct PodiumColumn: View {
                     Text("pts")
                 }
                 .font(.fredoka(14, .bold))
-                .foregroundStyle(place == 1 ? Theme.yellow : Theme.textDim)
+                .foregroundStyle(place == 1 ? Theme.fire : Theme.textDim)
             }
             .opacity(isUp ? 1 : 0)
             .scaleEffect(isUp ? 1 : 0.5, anchor: .bottom)
@@ -147,13 +147,13 @@ private struct PodiumColumn: View {
                     .fill(fill)
                 Text("\(place)")
                     .font(.lilita(place == 1 ? 46 : 36))
-                    .foregroundStyle(.white.opacity(0.92))
-                    .shadow(color: .black.opacity(0.25), radius: 0, x: 0, y: 3)
+                    .foregroundStyle(Theme.ink.opacity(0.7))
+                    .shadow(color: .white.opacity(0.6), radius: 0, x: 0, y: 1.5)
                     .padding(.top, 10)
             }
             .frame(height: isUp ? height : 8)
             .clipped()
-            .shadow(color: place == 1 && isUp ? Theme.yellow.opacity(0.35) : .clear, radius: 20)
+            .shadow(color: Theme.ink.opacity(isUp ? 0.18 : 0), radius: 6, x: 0, y: 3)
         }
         .frame(maxWidth: .infinity)
     }
@@ -206,10 +206,10 @@ private struct AwardCard: View {
                 .foregroundStyle(.white)
                 .frame(width: 40, height: 40)
                 .background(Circle().fill(color.gradient))
-                .shadow(color: color.opacity(0.5), radius: 10)
+                .shadow(color: Theme.ink.opacity(0.2), radius: 2, x: 0, y: 2)
             Text(award.title)
                 .font(.lilita(19))
-                .foregroundStyle(Theme.yellow)
+                .foregroundStyle(Theme.fire)
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
             Text(award.playerName)

@@ -50,7 +50,7 @@ private struct DangerVignette: View {
     @State private var pulse = false
 
     var body: some View {
-        RadialGradient(colors: [.clear, .clear, Theme.fire.opacity(pulse ? 0.38 : 0.12)], center: .center, startRadius: 120, endRadius: 520)
+        RadialGradient(colors: [.clear, .clear, Theme.fire.opacity(pulse ? 0.34 : 0.1)], center: .center, startRadius: 120, endRadius: 520)
             .ignoresSafeArea()
             .opacity(active ? 1 : 0)
             .allowsHitTesting(false)
@@ -67,7 +67,6 @@ private struct HoldingView: View {
     private let throwDistance: CGFloat = -90
     private let throwVelocity: CGFloat = -260
 
-    @State private var drag = CGSize.zero
     @State private var thrown = false
     @State private var hintBounce = false
 
@@ -82,10 +81,10 @@ private struct HoldingView: View {
                     ForEach(0..<3) { i in
                         Image(systemName: "chevron.up")
                             .font(.system(size: 26, weight: .black))
-                            .foregroundStyle(Theme.yellow.opacity(0.25 + Double(2 - i) * 0.25))
+                            .foregroundStyle(Theme.fire.opacity(0.2 + Double(2 - i) * 0.25))
                     }
                 }
-                .offset(y: hintBounce ? -175 : -160)
+                .offset(y: hintBounce ? -168 : -154)
                 .opacity(thrown ? 0 : 1)
 
                 HStack {
@@ -93,13 +92,17 @@ private struct HoldingView: View {
                     Spacer()
                     ShakeLines(flipped: true)
                 }
-                .padding(.horizontal, 18)
-                .offset(y: 10)
+                .padding(.horizontal, 30)
+                .offset(y: 30)
 
-                GlowPotato(mood: .nervous, width: 210, glow: Theme.fire, bobs: false)
-                    .rotationEffect(.degrees(sin(game.potatoTime * 18) * 6 + Double(drag.width) * 0.08))
-                    .offset(drag)
-                    .scaleEffect(thrown ? 0.55 : 1 - min(max(-drag.height, 0), 160) / 1200)
+                Ellipse()
+                    .fill(Theme.ink.opacity(0.14))
+                    .frame(width: 130, height: 18)
+                    .blur(radius: 4)
+                    .offset(y: 140)
+
+                PotatoSlot(width: 210)
+                    .contentShape(Rectangle())
                     .gesture(flick)
             }
             .frame(height: 330)
@@ -119,8 +122,9 @@ private struct HoldingView: View {
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 8)
-            .background(Capsule().fill(Theme.surface))
+            .background(Capsule().fill(Theme.card))
             .overlay(Capsule().strokeBorder(Theme.stroke, lineWidth: 1))
+            .shadow(color: Theme.shadow, radius: 4, y: 2)
 
             Spacer(minLength: 0)
 
@@ -136,7 +140,7 @@ private struct HoldingView: View {
         DragGesture()
             .onChanged { value in
                 guard !thrown else { return }
-                drag = CGSize(width: value.translation.width * 0.5, height: min(value.translation.height, 40))
+                game.potatoDrag = CGSize(width: value.translation.width * 0.5, height: min(value.translation.height, 40))
             }
             .onEnded { value in
                 guard !thrown else { return }
@@ -144,17 +148,15 @@ private struct HoldingView: View {
                 if value.translation.height < throwDistance || velocity < throwVelocity {
                     throwPotato()
                 } else {
-                    withAnimation(.spring(response: 0.35, dampingFraction: 0.5)) { drag = .zero }
+                    game.potatoDrag = .zero
                 }
             }
     }
 
     private func throwPotato() {
         guard !thrown else { return }
-        withAnimation(.easeIn(duration: 0.22)) {
-            thrown = true
-            drag = CGSize(width: drag.width, height: -700)
-        }
+        thrown = true
+        game.potatoDrag = CGSize(width: game.potatoDrag.width, height: -900)
         Task {
             try? await Task.sleep(for: .seconds(0.18))
             game.pass()
@@ -165,11 +167,9 @@ private struct HoldingView: View {
 private struct PassingView: View {
     let game: GameModel
 
-    @State private var arrived = false
-
     var body: some View {
         VStack(spacing: 12) {
-            Pill(text: "SLOW-MO  ·  0.5×", fill: Theme.blue.opacity(0.25), textColor: Theme.blue, border: Theme.blue.opacity(0.6))
+            Pill(text: "SLOW-MO  ·  0.5×", fill: Theme.blue, textColor: .white, border: Theme.ink.opacity(0.2))
 
             SectionLabel(text: "\(game.name(game.passer)) threw it to")
             Text(game.name(game.target).uppercased())
@@ -177,19 +177,13 @@ private struct PassingView: View {
 
             ZStack {
                 SpeedLines()
-                    .offset(x: -60, y: -40)
-                ForEach(1..<4) { i in
-                    PotatoImage(mood: .nervous, width: 150)
-                        .rotationEffect(.degrees(game.potatoTime * 220 - Double(i) * 24))
-                        .offset(y: arrived ? -Double(i) * 34 : -260)
-                        .opacity(0.22 - Double(i) * 0.05)
-                }
-                PotatoImage(mood: .nervous, width: 150)
-                    .rotationEffect(.degrees(game.potatoTime * 220))
-                    .offset(y: arrived ? 0 : -260)
-                    .shadow(color: Theme.blue.opacity(0.6), radius: 24)
+                    .offset(x: -70, y: -30)
+                SpeedLines()
+                    .scaleEffect(x: -1)
+                    .offset(x: 70, y: -50)
+                PotatoSlot(width: 150)
             }
-            .frame(height: 220)
+            .frame(height: 210)
 
             CatchButton(game: game)
 
@@ -205,7 +199,7 @@ private struct PassingView: View {
             Spacer(minLength: 0)
         }
         .onAppear {
-            withAnimation(.spring(response: 0.5, dampingFraction: 0.6)) { arrived = true }
+            game.potatoDrag = .zero
         }
     }
 }
@@ -221,24 +215,23 @@ private struct CatchButton: View {
         Button(action: game.accept) {
             ZStack {
                 Circle()
-                    .stroke(Theme.blue.opacity(0.18), lineWidth: 10)
+                    .stroke(Theme.ink.opacity(0.1), lineWidth: 10)
                 Circle()
                     .trim(from: 0, to: remaining)
-                    .stroke(Theme.yellow, style: StrokeStyle(lineWidth: 10, lineCap: .round))
+                    .stroke(Theme.orange, style: StrokeStyle(lineWidth: 10, lineCap: .round))
                     .rotationEffect(.degrees(-90))
-                    .shadow(color: Theme.yellow.opacity(0.8), radius: 8)
                 Circle()
                     .fill(game.passPending ? Theme.blueGradient : Theme.fireGradient)
                     .padding(16)
-                    .shadow(color: (game.passPending ? Theme.blue : Theme.fire).opacity(0.7), radius: 20)
-                    .overlay(Circle().strokeBorder(.white.opacity(0.45), lineWidth: 1.5).padding(16))
+                    .overlay(Circle().strokeBorder(Theme.ink.opacity(0.3), lineWidth: 1.5).padding(16))
+                    .shadow(color: Theme.shadow, radius: 8, y: 6)
                 VStack(spacing: 2) {
                     Text(game.passPending ? "CATCH!" : "TAKE IT")
                         .font(.lilita(34))
                         .foregroundStyle(.white)
                     Text(game.passPending ? String(format: "%.1fs", game.autoGiveTime - game.passElapsed) : "−\(game.lateGivePenalty) pts")
                         .font(.fredoka(15, .bold))
-                        .foregroundStyle(.white.opacity(0.8))
+                        .foregroundStyle(.white.opacity(0.85))
                         .monospacedDigit()
                 }
             }
@@ -259,7 +252,7 @@ private struct SpeedLines: View {
             Capsule().frame(width: 90, height: 4).offset(x: 14)
             Capsule().frame(width: 60, height: 4).offset(x: 30)
         }
-        .foregroundStyle(Theme.blue.opacity(0.6))
+        .foregroundStyle(Theme.blue.opacity(0.45))
         .rotationEffect(.degrees(70))
     }
 }
@@ -285,19 +278,26 @@ private struct CardStepView: View {
                 .minimumScaleFactor(0.6)
                 .contentTransition(.opacity)
 
-            ZStack {
+            ZStack(alignment: .bottomTrailing) {
+                cardFace
+                    .rotation3DEffect(.degrees(flipAngle), axis: (x: 0, y: 1, z: 0), perspective: 0.6)
+                    .scaleEffect(revealed ? 1 : 0.94)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+                PotatoSlot(width: 78)
+                    .offset(x: -2, y: 6)
+            }
+            .frame(maxWidth: .infinity)
+            .frame(height: 400)
+            .background {
                 StarburstShape(points: 16, innerRatio: 0.55)
-                    .fill(RadialGradient(colors: [(showingMinigame ? Theme.yellow : Theme.green).opacity(0.35), .clear], center: .center, startRadius: 40, endRadius: 230))
+                    .fill(RadialGradient(colors: [(showingMinigame ? Theme.yellow : Theme.green).opacity(0.3), .clear], center: .center, startRadius: 40, endRadius: 230))
                     .frame(width: 460, height: 460)
                     .rotationEffect(.degrees(raysSpin ? 360 : 0))
                     .opacity(revealed ? 1 : 0)
                     .scaleEffect(revealed ? 1 : 0.4)
-
-                cardFace
-                    .rotation3DEffect(.degrees(flipAngle), axis: (x: 0, y: 1, z: 0), perspective: 0.6)
-                    .scaleEffect(revealed ? 1 : 0.94)
+                    .allowsHitTesting(false)
             }
-            .frame(height: 400)
 
             Text(revealed ? (minigame == nil ? "Pass it on, quick." : "Beat it for +\(game.minigamePoints). The fuse keeps burning.") : "The fuse is still burning…")
                 .font(.fredoka(17))
@@ -340,11 +340,12 @@ private struct CardStepView: View {
             }
         }
         .font(.fredoka(14, .bold))
-        .foregroundStyle(game.lastCatch == nil ? Theme.yellow : (positive ? Theme.green : Theme.fire))
+        .foregroundStyle(game.lastCatch == nil ? Theme.orange : (positive ? Theme.green : Theme.fire))
         .padding(.horizontal, 14)
         .padding(.vertical, 8)
-        .background(Capsule().fill(Theme.surface))
+        .background(Capsule().fill(Theme.card))
         .overlay(Capsule().strokeBorder(Theme.stroke, lineWidth: 1))
+        .shadow(color: Theme.shadow, radius: 4, y: 2)
         .scaleEffect(chipShown ? 1 : 0.6)
         .opacity(chipShown ? 1 : 0)
         .onAppear {
@@ -353,7 +354,7 @@ private struct CardStepView: View {
     }
 
     private var cardFace: some View {
-        let shape = RoundedRectangle(cornerRadius: 30, style: .continuous)
+        let shape = RoundedRectangle(cornerRadius: 26, style: .continuous)
         return VStack(spacing: 14) {
             if showingMinigame {
                 ZStack {
@@ -370,7 +371,7 @@ private struct CardStepView: View {
                     .minimumScaleFactor(0.7)
                 Text(revealed ? (minigame?.cardHint ?? "") : "???")
                     .font(.fredoka(19, .semibold))
-                    .foregroundStyle(.white.opacity(0.9))
+                    .foregroundStyle(.white.opacity(0.92))
             } else {
                 ZStack {
                     Circle().fill(.white.opacity(0.22))
@@ -384,22 +385,19 @@ private struct CardStepView: View {
                     .foregroundStyle(.white)
                 Text("No minigame. Phew!")
                     .font(.fredoka(19, .semibold))
-                    .foregroundStyle(.white.opacity(0.9))
+                    .foregroundStyle(.white.opacity(0.92))
             }
         }
         .padding(20)
         .frame(width: 270, height: 350)
         .background(
             shape.fill(showingMinigame
-                ? LinearGradient(colors: [Color(hex: 0xFF8A3D), Theme.pink, Theme.purple], startPoint: .topLeading, endPoint: .bottomTrailing)
-                : LinearGradient(colors: [Color(hex: 0x5BE6AE), Color(hex: 0x14A37F)], startPoint: .topLeading, endPoint: .bottomTrailing))
+                ? LinearGradient(colors: [Color(hex: 0xEF6A3A), Theme.pink, Theme.purple], startPoint: .topLeading, endPoint: .bottomTrailing)
+                : LinearGradient(colors: [Color(hex: 0x3DB274), Color(hex: 0x1F7F57)], startPoint: .topLeading, endPoint: .bottomTrailing))
         )
-        .overlay(shape.strokeBorder(.white.opacity(0.45), lineWidth: 2))
-        .overlay(
-            shape.fill(LinearGradient(colors: [.white.opacity(0.25), .clear], startPoint: .top, endPoint: .center))
-                .allowsHitTesting(false)
-        )
-        .shadow(color: (showingMinigame ? Theme.pink : Theme.green).opacity(revealed ? 0.7 : 0.35), radius: revealed ? 34 : 18, y: 10)
+        .overlay(shape.strokeBorder(.white.opacity(0.6), lineWidth: 6).padding(8))
+        .overlay(shape.strokeBorder(Theme.ink.opacity(0.25), lineWidth: 1.5))
+        .shadow(color: Theme.shadow, radius: revealed ? 16 : 10, y: revealed ? 10 : 6)
     }
 
     private func flip() async {
