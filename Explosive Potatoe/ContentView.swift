@@ -31,6 +31,10 @@ struct ContentView: View {
         .animation(.easeInOut(duration: 0.3), value: game.phase)
         .preferredColorScheme(.light)
         .tint(Theme.fire)
+        .task {
+            try? await Task.sleep(for: .milliseconds(150))
+            KeyboardWarmUp.run()
+        }
     }
 }
 
