@@ -277,12 +277,12 @@ final class GameModel {
             holder = target
             passPending = false
             lastCatch = (tier.points, tier.label)
-            cardLabel = "\(name(holder)) · \(tier.label.lowercased()) +\(tier.points)"
+            cardLabel = "\(name(holder)) · \(tier.label.lowercased())"
             SFX.play(.grab)
             Haptics.success()
         } else {
             lastCatch = (-lateGivePenalty, "Too slow")
-            cardLabel = "\(name(holder)) was too slow · −\(lateGivePenalty)"
+            cardLabel = "\(name(holder)) was too slow"
             Haptics.fail()
         }
         turn += 1
