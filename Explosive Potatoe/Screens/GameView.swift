@@ -64,8 +64,8 @@ private struct DangerVignette: View {
 private struct HoldingView: View {
     let game: GameModel
 
-    private let throwDistance: CGFloat = -90
-    private let throwVelocity: CGFloat = -260
+    private let throwDistance: CGFloat = -70
+    private let throwVelocity: CGFloat = -220
 
     @State private var thrown = false
     @State private var hintBounce = false
@@ -102,8 +102,6 @@ private struct HoldingView: View {
                     .offset(y: 140)
 
                 PotatoSlot(width: 210)
-                    .contentShape(Rectangle())
-                    .gesture(flick)
             }
             .frame(height: 330)
             .onAppear {
@@ -128,12 +126,14 @@ private struct HoldingView: View {
 
             Spacer(minLength: 0)
 
-            Button("Throw to \(game.name(game.target))", action: throwPotato)
-                .buttonStyle(.chunky())
+            SwipeUpHint()
+                .opacity(thrown ? 0 : 1)
             Text("+\(game.passPoints) pts for every pass")
                 .font(.fredoka(13))
                 .foregroundStyle(Theme.textFaint)
         }
+        .contentShape(Rectangle())
+        .gesture(flick)
     }
 
     private var flick: some Gesture {
@@ -160,6 +160,38 @@ private struct HoldingView: View {
         Task {
             try? await Task.sleep(for: .seconds(0.18))
             game.pass()
+        }
+    }
+}
+
+private struct SwipeUpHint: View {
+    @State private var swipe = false
+
+    var body: some View {
+        HStack(spacing: 14) {
+            ZStack {
+                Capsule()
+                    .fill(Theme.fire.opacity(0.12))
+                    .frame(width: 34, height: 58)
+                Image(systemName: "hand.point.up.fill")
+                    .font(.system(size: 24, weight: .semibold))
+                    .foregroundStyle(Theme.fire)
+                    .offset(y: swipe ? -14 : 12)
+                    .opacity(swipe ? 0.2 : 1)
+            }
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Swipe up to throw")
+                    .font(.lilita(24))
+                    .foregroundStyle(Theme.text)
+                Text("Anywhere on the screen works")
+                    .font(.fredoka(14))
+                    .foregroundStyle(Theme.textDim)
+            }
+            Spacer(minLength: 0)
+        }
+        .glassCard(cornerRadius: 20, padding: 14)
+        .onAppear {
+            withAnimation(.easeInOut(duration: 0.9).repeatForever(autoreverses: false)) { swipe = true }
         }
     }
 }
