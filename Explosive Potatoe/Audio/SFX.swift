@@ -5,7 +5,7 @@ import UIKit
 nonisolated enum SFX {
     enum Sound: String, CaseIterable {
         case tap, pop, whoosh, grab, boom, success, fail, tick, flip, fuseLit, win
-        case swish, splash, snip, zap
+        case swish, splash, snip, zap, rattle
     }
 
     private static let mutedKey = "sfxMuted"
