@@ -199,6 +199,10 @@ private struct SwipeUpHint: View {
 private struct PassingView: View {
     let game: GameModel
 
+    private let catchDistance: CGFloat = 70
+    private let catchVelocity: CGFloat = 220
+    private let forcedPause = 0.9
+
     var body: some View {
         VStack(spacing: 12) {
             Pill(text: "SLOW-MO  ·  0.5×", fill: Theme.blue, textColor: .white, border: Theme.ink.opacity(0.2))
@@ -213,11 +217,11 @@ private struct PassingView: View {
                 SpeedLines()
                     .scaleEffect(x: -1)
                     .offset(x: 70, y: -50)
-                PotatoSlot(width: 150)
+                PotatoSlot(width: 128)
             }
-            .frame(height: 210)
+            .frame(height: 190)
 
-            CatchButton(game: game)
+            ShakeToCatch(game: game)
 
             Text(game.passPending
                  ? "If it blows mid-air, \(game.name(game.passer)) takes the hit."
@@ -230,21 +234,44 @@ private struct PassingView: View {
 
             Spacer(minLength: 0)
         }
+        .contentShape(Rectangle())
+        .gesture(grab)
+        .onShake(enabled: game.step == .passing) {
+            SFX.play(.rattle)
+            game.accept()
+        }
         .onAppear {
             game.potatoDrag = .zero
         }
+        .onChange(of: game.passPending) {
+            guard !game.passPending else { return }
+            Task {
+                try? await Task.sleep(for: .seconds(forcedPause))
+                if game.step == .passing { game.accept() }
+            }
+        }
+    }
+
+    private var grab: some Gesture {
+        DragGesture()
+            .onEnded { value in
+                let velocity = value.predictedEndTranslation.height - value.translation.height
+                if value.translation.height > catchDistance || velocity > catchVelocity {
+                    game.accept()
+                }
+            }
     }
 }
 
-private struct CatchButton: View {
+private struct ShakeToCatch: View {
     let game: GameModel
-    @State private var pulse = false
+    @State private var wiggle = false
 
-    private let size: CGFloat = 176
+    private let size: CGFloat = 150
 
     var body: some View {
         let remaining = max(0, 1 - game.passElapsed / game.autoGiveTime)
-        Button(action: game.accept) {
+        VStack(spacing: 10) {
             ZStack {
                 Circle()
                     .stroke(Theme.ink.opacity(0.1), lineWidth: 10)
@@ -257,22 +284,23 @@ private struct CatchButton: View {
                     .padding(16)
                     .overlay(Circle().strokeBorder(Theme.ink.opacity(0.3), lineWidth: 1.5).padding(16))
                     .shadow(color: Theme.shadow, radius: 8, y: 6)
-                VStack(spacing: 2) {
-                    Text(game.passPending ? "CATCH!" : "TAKE IT")
-                        .font(.lilita(34))
-                        .foregroundStyle(.white)
-                    Text(game.passPending ? String(format: "%.1fs", game.autoGiveTime - game.passElapsed) : "−\(game.lateGivePenalty) pts")
-                        .font(.fredoka(15, .bold))
-                        .foregroundStyle(.white.opacity(0.85))
-                        .monospacedDigit()
-                }
+                Image(systemName: game.passPending ? "iphone.gen3.radiowaves.left.and.right" : "tortoise.fill")
+                    .font(.system(size: 46, weight: .bold))
+                    .foregroundStyle(.white)
+                    .rotationEffect(.degrees(game.passPending ? (wiggle ? 14 : -14) : 0))
             }
             .frame(width: size, height: size)
-            .scaleEffect(pulse ? 1.05 : 0.97)
+
+            Text(game.passPending ? "SHAKE TO CATCH!" : "TOO SLOW")
+                .font(.lilita(34))
+                .foregroundStyle(game.passPending ? Theme.blue : Theme.fire)
+            Text(game.passPending ? String(format: "%.1fs left · or swipe down", game.autoGiveTime - game.passElapsed) : "−\(game.lateGivePenalty) pts")
+                .font(.fredoka(15, .bold))
+                .foregroundStyle(Theme.textDim)
+                .monospacedDigit()
         }
-        .buttonStyle(.pressable)
         .onAppear {
-            withAnimation(.easeInOut(duration: 0.35).repeatForever(autoreverses: true)) { pulse = true }
+            withAnimation(.easeInOut(duration: 0.12).repeatForever(autoreverses: true)) { wiggle = true }
         }
     }
 }

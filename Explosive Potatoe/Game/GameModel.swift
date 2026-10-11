@@ -107,16 +107,16 @@ final class GameModel {
         "Wall sit for 30 seconds", "Act like a chicken for 10 seconds", "Speak in rhymes for 1 minute",
         "Do your best runway walk", "Do 10 squats", "Give a 30-second motivational speech"
     ]
-    let autoGiveTime = 1.5
+    let autoGiveTime = 2.0
     let passPoints = 10
     let lateGivePenalty = 10
     let minigamePoints = 15
-    let catchTiers: [(time: Double, points: Int, label: String)] = [(0.5, 15, "Lightning catch"), (1.0, 10, "Quick catch"), (.infinity, 5, "Caught")]
+    let catchTiers: [(time: Double, points: Int, label: String)] = [(0.7, 15, "Lightning catch"), (1.3, 10, "Quick catch"), (.infinity, 5, "Caught")]
 
     private let minigameChance = 0.3
     private let surpriseChance = 0.05
     private let surpriseMin = 6.0
-    private let slowMoEnd = 2.0
+    private let slowMoEnd = 2.5
 
     var players: [Player] = []
     var gameType = GameType.classic
@@ -266,6 +266,7 @@ final class GameModel {
     }
 
     func accept() {
+        guard step == .passing else { return }
         if passPending, let passStart {
             let time = Date.now.timeIntervalSince(passStart)
             let tier = catchTiers.first { time < $0.time } ?? catchTiers[catchTiers.count - 1]
