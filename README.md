@@ -4,6 +4,36 @@ An iOS hot potato party game built with SwiftUI. Players pass a phone around whi
 
 This is an early playable demo.
 
+## Screenshots
+
+### Night revamp (Oct 10, 2026)
+
+A full redesign with a dark night theme, glowing buttons, sound effects, haptics, three game modes, and two new minigames.
+
+<p>
+  <img src="screenshots/v2/1-home.png" width="200" alt="Home">
+  <img src="screenshots/v2/2-players.png" width="200" alt="Players">
+  <img src="screenshots/v2/3-punishment.png" width="200" alt="Punishment">
+  <img src="screenshots/v2/4-game.png" width="200" alt="Holding the potato">
+  <img src="screenshots/v2/5-minigame.png" width="200" alt="Minigame">
+  <img src="screenshots/v2/6-explosion.png" width="200" alt="Explosion">
+  <img src="screenshots/v2/7-results.png" width="200" alt="Results">
+</p>
+
+### First playable UI (Oct 9, 2026)
+
+The original cartoon look built from the Figma mockups.
+
+<p>
+  <img src="screenshots/v1/1-home.png" width="200" alt="Home">
+  <img src="screenshots/v1/2-players.png" width="200" alt="Players">
+  <img src="screenshots/v1/3-punishment.png" width="200" alt="Punishment">
+  <img src="screenshots/v1/4-game.png" width="200" alt="Holding the potato">
+  <img src="screenshots/v1/5-minigame.png" width="200" alt="Minigame">
+  <img src="screenshots/v1/6-explosion.png" width="200" alt="Explosion">
+  <img src="screenshots/v1/7-results.png" width="200" alt="Results">
+</p>
+
 ## How it plays
 
 1. Add three or more players and pick a game type (a 3-round game for now).
