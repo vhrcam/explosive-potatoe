@@ -203,17 +203,14 @@ final class GameModel {
     }
 
     func startGame() {
-        for i in players.indices {
-            players[i].points = 0
-            players[i].losses = 0
-            players[i].passes = 0
-            players[i].minigamesWon = 0
-            players[i].fastestCatch = nil
-        }
-        round = 1
-        punishment = ""
+        resetStats()
         holder = players.indices.randomElement() ?? 0
         phase = .punishment
+    }
+
+    func newGame() {
+        resetStats()
+        phase = .players
     }
 
     func startRound() {
@@ -305,6 +302,18 @@ final class GameModel {
         loop?.cancel()
         SFX.stopSizzle()
         phase = .home
+    }
+
+    private func resetStats() {
+        for i in players.indices {
+            players[i].points = 0
+            players[i].losses = 0
+            players[i].passes = 0
+            players[i].minigamesWon = 0
+            players[i].fastestCatch = nil
+        }
+        round = 1
+        punishment = ""
     }
 
     private func readyToPass() {

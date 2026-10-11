@@ -59,22 +59,37 @@ struct ResultsView: View {
             }
             .scrollIndicators(.hidden)
 
-            VStack(spacing: 12) {
-                Button { game.startGame() } label: {
-                    Label("Play Again", systemImage: "arrow.clockwise")
-                }
-                .buttonStyle(.chunky())
-                Button { game.phase = .players } label: {
-                    Label("New Players", systemImage: "person.2.fill")
-                }
-                .buttonStyle(.chunky(.secondary))
-            }
-            .staggerIn(appeared, 1)
+            nextPrompt
+                .staggerIn(risen >= 3, 3, from: 60)
+                .allowsHitTesting(risen >= 3)
         }
         .screen(.victory)
         .overlay { ConfettiBurst(isActive: risen >= 3) }
         .onAppear { appeared = true }
         .task { await reveal() }
+    }
+
+    private var nextPrompt: some View {
+        VStack(spacing: 12) {
+            VStack(spacing: 2) {
+                Text("What's next?")
+                    .font(.lilita(24))
+                    .foregroundStyle(Theme.text)
+                Text("Change the players or the mode, or run it back.")
+                    .font(.fredoka(14))
+                    .foregroundStyle(Theme.textDim)
+                    .multilineTextAlignment(.center)
+            }
+            Button { game.newGame() } label: {
+                Label("New Game", systemImage: "plus.circle.fill")
+            }
+            .buttonStyle(.chunky())
+            Button { game.startGame() } label: {
+                Label("Rematch · Same Crew", systemImage: "arrow.clockwise")
+            }
+            .buttonStyle(.chunky(.secondary))
+        }
+        .glassCard(cornerRadius: 24, padding: 16)
     }
 
     private func podium(_ top: [Player]) -> some View {
