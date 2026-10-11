@@ -2,28 +2,34 @@ import SwiftUI
 import CoreText
 
 enum Theme {
-    static let cream = Color(hex: 0xFFF4E0)
-    static let creamDeep = Color(hex: 0xF6E3BF)
-    static let ink = Color(hex: 0x3B2A1A)
-    static let inkMuted = Color(hex: 0x8A7560)
-    static let red = Color(hex: 0xFF5A36)
-    static let redShadow = Color(hex: 0xB8381C)
-    static let potato = Color(hex: 0xE3A95C)
-    static let potatoDark = Color(hex: 0x6B4423)
-    static let green = Color(hex: 0x4CB86A)
-    static let greenShadow = Color(hex: 0x2F8A4C)
-    static let blue = Color(hex: 0x4F9BE0)
-    static let blueShadow = Color(hex: 0x2E6DB0)
-    static let yellow = Color(hex: 0xFFC93C)
-    static let spark = Color(hex: 0xFF7A2F)
-    static let slowMo = Color(hex: 0xDCE3E1)
-    static let slowMoBlob = Color(hex: 0xCDD6D3)
-    static let rowShadow = Color(hex: 0xE2CFAE)
-    static let tileShadow = Color(hex: 0xCDB99C)
+    static let bgTop = Color(hex: 0x22123F)
+    static let bgBottom = Color(hex: 0x0D0820)
+    static let surface = Color.white.opacity(0.07)
+    static let surfaceStrong = Color.white.opacity(0.12)
+    static let stroke = Color.white.opacity(0.14)
 
-    static let avatarColors = [potato, blue, green, red]
-    static let crateColors = [red, blue, green]
-    static let crateDark = [redShadow, blueShadow, greenShadow]
+    static let text = Color(hex: 0xFFF4E6)
+    static let textDim = text.opacity(0.62)
+    static let textFaint = text.opacity(0.38)
+
+    static let fire = Color(hex: 0xFF5A2E)
+    static let orange = Color(hex: 0xFF8A1F)
+    static let yellow = Color(hex: 0xFFD23F)
+    static let green = Color(hex: 0x34D399)
+    static let blue = Color(hex: 0x4FA8FF)
+    static let pink = Color(hex: 0xFF4D8D)
+    static let purple = Color(hex: 0x8B5CF6)
+    static let potato = Color(hex: 0xE3A95C)
+
+    static let fireGradient = LinearGradient(colors: [Color(hex: 0xFF8A3D), Color(hex: 0xFF4B2B)], startPoint: .top, endPoint: .bottom)
+    static let greenGradient = LinearGradient(colors: [Color(hex: 0x5BE6AE), Color(hex: 0x1FB67E)], startPoint: .top, endPoint: .bottom)
+    static let blueGradient = LinearGradient(colors: [Color(hex: 0x7CC0FF), Color(hex: 0x3A82F6)], startPoint: .top, endPoint: .bottom)
+    static let goldGradient = LinearGradient(colors: [Color(hex: 0xFFE27A), Color(hex: 0xFFB21F)], startPoint: .top, endPoint: .bottom)
+    static let glassGradient = LinearGradient(colors: [Color.white.opacity(0.16), Color.white.opacity(0.06)], startPoint: .top, endPoint: .bottom)
+
+    static let avatarColors = [orange, blue, green, pink, purple, yellow]
+    static let crateColors = [fire, blue, green]
+    static let crateDark = [Color(hex: 0xA8321A), Color(hex: 0x2459B8), Color(hex: 0x14845A)]
     static let crateNames = ["Red", "Blue", "Green"]
 
     static func registerFonts() {
@@ -43,16 +49,19 @@ extension Color {
 }
 
 extension Font {
+    private static let hasFredoka = UIFont.familyNames.contains("Fredoka")
+    private static let hasLilita = UIFont.familyNames.contains("Lilita One")
+
     static func fredoka(_ size: CGFloat, _ weight: Font.Weight = .medium) -> Font {
-        if UIFont.familyNames.contains("Fredoka") {
+        if hasFredoka {
             return .custom("Fredoka", size: size).weight(weight)
         }
         return .system(size: size, weight: weight, design: .rounded)
     }
 
     static func lilita(_ size: CGFloat) -> Font {
-        if UIFont.familyNames.contains("Lilita One") {
-            return .custom("LilitaOne", size: size)
+        if hasLilita {
+            return .custom("Lilita One", size: size)
         }
         return .system(size: size, weight: .black, design: .rounded)
     }

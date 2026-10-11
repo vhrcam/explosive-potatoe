@@ -11,6 +11,8 @@ import SwiftUI
 struct Explosive_PotatoeApp: App {
     init() {
         Theme.registerFonts()
+        SFX.preload()
+        Haptics.prepare()
     }
 
     var body: some Scene {
