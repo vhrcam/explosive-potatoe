@@ -266,6 +266,9 @@ private struct CardStepView: View {
     @State private var revealed = false
     @State private var raysSpin = false
     @State private var chipShown = false
+    @State private var advance = 0.0
+
+    private let autoAdvance = 1.2
 
     var body: some View {
         VStack(spacing: 14) {
@@ -307,16 +310,17 @@ private struct CardStepView: View {
             Spacer(minLength: 0)
 
             if revealed {
-                Group {
-                    if minigame == nil {
-                        Button("Phew! Keep going", action: game.cardDone)
-                            .buttonStyle(.chunky(.green))
-                    } else {
-                        Button("Let's go!", action: game.cardDone)
-                            .buttonStyle(.chunky())
+                GeometryReader { geo in
+                    ZStack(alignment: .leading) {
+                        Capsule().fill(Theme.ink.opacity(0.08))
+                        Capsule()
+                            .fill(minigame == nil ? Theme.green : Theme.fire)
+                            .frame(width: geo.size.width * advance)
                     }
                 }
-                .transition(.move(edge: .bottom).combined(with: .opacity))
+                .frame(width: 160, height: 8)
+                .padding(.bottom, 24)
+                .transition(.opacity)
             }
         }
         .task { await flip() }
@@ -425,5 +429,9 @@ private struct CardStepView: View {
         }
         withAnimation(.spring(response: 0.45, dampingFraction: 0.55)) { revealed = true }
         withAnimation(.linear(duration: 14).repeatForever(autoreverses: false)) { raysSpin = true }
+        withAnimation(.linear(duration: autoAdvance)) { advance = 1 }
+        try? await Task.sleep(for: .seconds(autoAdvance))
+        guard !Task.isCancelled else { return }
+        game.cardDone()
     }
 }
